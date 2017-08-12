@@ -7,6 +7,8 @@ import {
 import BaseAuthenticator from 'ember-simple-auth/authenticators/base';
 
 export default BaseAuthenticator.extend({
+  session: Ember.inject.service(),
+
   /**
     The endpoint on the server that the authentication request is sent to.
     @property serverTokenEndpoint
@@ -29,9 +31,23 @@ export default BaseAuthenticator.extend({
     console.log(`Restore: ${data}`);
   },
 
-  authenticate(identification, password) {
-    console.log(`Authenticate: ${identification} - ${password}`);
+  /**
+    Authenticates the session with the specified `identification` & `password`.
+    Issues a `POST` request to the serverTokenEndpoint and receives the JWT token in response.
 
+    If the credentials are valid and thus authentication succeeds, a promise that resolves with the
+    server's response is returned, otherwise a promise that rejects with the error as returned by
+    the server is returned.
+
+    TODO: If the server supports it this method also schedules refresh requests for the access token before it
+    expires.
+    @method authenticate
+    @param {String} identification The resource owner username
+    @param {String} password The resource owner password
+    @return {Ember.RSVP.Promise} A promise that when it resolves results in the session becoming authenticated
+    @public
+  */
+  authenticate(identification, password) {
     return new RSVP.Promise((resolve, reject) => {
       const data = {
         username: identification,
@@ -61,8 +77,15 @@ export default BaseAuthenticator.extend({
     });
   },
 
+  /**
+    Deletes the JWT token
+    @method invalidate
+    @return {Ember.RSVP.Promise} A promise that when it resolves results in the session being invalidated
+    @public
+   */
   invalidate() {
-    console.log(`Invalidate: ${data}`);
+    this.set('session.data', {});
+    return RSVP.Promise.resolve();
   },
 
   /**
