@@ -84,7 +84,7 @@ export default BaseAuthenticator.extend({
     @public
    */
   invalidate() {
-    this.set('session.data', {});
+    this.set('session.data.authenticated', {});
     return RSVP.Promise.resolve();
   },
 
