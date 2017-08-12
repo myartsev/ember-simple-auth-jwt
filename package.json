@@ -21,6 +21,7 @@
     "ember-cli-babel": "^6.3.0"
   },
   "devDependencies": {
+    "body-parser": "^1.17.2",
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^3.0.0",
     "ember-cli": "~2.14.0",
@@ -38,7 +39,9 @@
     "ember-load-initializers": "^1.0.0",
     "ember-resolver": "^4.0.0",
     "ember-source": "~2.14.0",
+    "express": "^4.15.4",
     "glob": "^4.5.3",
+    "jsonwebtoken": "^7.4.2",
     "loader.js": "^4.2.3",
     "morgan": "^1.8.2"
   },
