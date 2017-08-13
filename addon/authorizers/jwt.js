@@ -32,17 +32,7 @@ export default Base.extend({
     @param {function} block
   */
   authorize(data = {}, block = () => {}) {
-    console.log(`Authorize: ${data}`)
-    // const {
-    //   tokenAttributeName,
-    //   identificationAttributeName
-    // } = this.getProperties('tokenAttributeName', 'identificationAttributeName');
-    // const userToken = data[tokenAttributeName];
-    // const userIdentification = data[identificationAttributeName];
-    //
-    // if (!isEmpty(userToken) && !isEmpty(userIdentification)) {
-    //   const authData = `${tokenAttributeName}="${userToken}", ${identificationAttributeName}="${userIdentification}"`;
-    //   block('Authorization', `Token ${authData}`);
-    // }
-  }
+    if (!Ember.isEmpty(data) && !Ember.isEmpty(data.token)) {
+      block('Authorization', `Bearer ${data.token}`);
+    }  }
 });

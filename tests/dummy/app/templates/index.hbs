@@ -1,15 +1,21 @@
 <div>This is the index page...</div>
-
-<div>{{#link-to 'secret'}}Go to a protected route{{/link-to}}</div>
-
 <div>
-  {{#if session.isAuthenticated}}
-    <button {{action 'invalidateSession'}}>Logout</button>
-  {{else}}
-    {{#link-to 'login'}}Login{{/link-to}}
-  {{/if}}
+  <b>
+    Note: the expiration time of the token from the backend is set at a very low 30 sec.<br>
+    You should be able to see the token info below changing as the token gets refreshed.<br>
+    This is for demo purposes only, in production you wouldn't want to bombard your authentication server like this.
+  </b>
 </div>
-
-<div>
-  {{sessionData}}
-</div>
+<br>
+<br>
+<div><b>ember-simple-auth session data</b></div>
+<pre class="code-block">{{sessionData}}</pre>
+<br>
+<br>
+<h2>Decoded JWT token</h2>
+<div><b>Header</b></div>
+<pre class="code-block">{{jwtHeader}}</pre>
+<div><b>Payload</b></div>
+<pre class="code-block">{{jwtPayload}}</pre>
+<div><b>Signature</b></div>
+<pre class="code-block">{{jwtSignature}}</pre>

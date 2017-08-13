@@ -1,3 +1,21 @@
-<h2 id="title">Welcome to ember-simple-auth-jwt</h2>
+<h1>Demo: ember-simple-auth-jwt</h1>
+
+<ul>
+  <li>
+    {{#link-to 'index'}}Index route{{/link-to}}
+  </li>
+  <li>
+    {{#link-to 'secret'}}Protected route{{/link-to}}
+  </li>
+  <li>
+    {{#if session.isAuthenticated}}
+      <a href='' {{action 'invalidateSession'}}>Logout</a>
+    {{else}}
+      {{#link-to 'login'}}Login{{/link-to}}
+    {{/if}}
+  </li>
+</ul>
+<br>
+<br>
 
 {{outlet}}
