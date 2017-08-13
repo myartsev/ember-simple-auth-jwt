@@ -56,10 +56,17 @@ export default BaseAuthenticator.extend({
     return (Math.floor(Math.random() * (max - min)) + min) * 1000;
   }).volatile(),
 
+  /**
+    Restores the session from a session data object; __will return a resolving
+    promise when there is a non-empty `access_token` in the session data__ and
+    a rejecting promise otherwise.
+    @method restore
+    @param {Object} data The data to restore the session from
+    @return {Ember.RSVP.Promise} A promise that when it resolves results in the session becoming or remaining authenticated
+    @public
+  */
   restore(data) {
-    // TODO: call refresh-token and resolve the promise on whether the token
-    // was successfully refreshed
-    return RSVP.Promise.resolve();
+    return this._refreshAccessToken(data.token);
   },
 
   /**
@@ -88,6 +95,7 @@ export default BaseAuthenticator.extend({
 
       this.makeRequest(serverTokenEndpoint, data).then((response) => {
         run(() => {
+          // TODO: common code between authenticate and refresh token; consolidate
           if (!this._validate(response)) {
             reject('token is missing or invalid in server response');
           }
