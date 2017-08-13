@@ -212,7 +212,7 @@ export default BaseAuthenticator.extend({
 
   _validateParseRefreshToken(response) {
     if (!this._validate(response)) {
-      reject('token is missing or invalid in server response');
+      RSVP.Promise.reject('token is missing or invalid in server response');
     }
 
     const jwtPayload = JSON.parse(atob(response.token.split('.')[1]));
