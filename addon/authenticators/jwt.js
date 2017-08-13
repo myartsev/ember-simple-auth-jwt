@@ -28,7 +28,9 @@ export default BaseAuthenticator.extend({
   identificationAttributeName: 'username',
 
   restore(data) {
-    console.log(`Restore: ${data}`);
+    // TODO: call refresh-token and resolve the promise on whether the token
+    // was successfully refreshed
+    return RSVP.Promise.resolve();
   },
 
   /**
@@ -58,9 +60,11 @@ export default BaseAuthenticator.extend({
       this.makeRequest(serverTokenEndpoint, data).then((response) => {
         run(() => {
           if (!this._validate(response)) {
-            reject('token is missing in server response');
+            reject('token is missing or invalid in server response');
           }
 
+          const jwtPayload = JSON.parse(atob(response.token.split('.')[1]));
+          console.log(jwtPayload);
           // const expiresAt = this._absolutizeExpirationTime(response['expires_in']);
           // this._scheduleAccessTokenRefresh(response['expires_in'], expiresAt, response['refresh_token']);
           // if (!isEmpty(expiresAt)) {
@@ -121,7 +125,37 @@ export default BaseAuthenticator.extend({
     });
   },
 
+  /**
+    Validate that the response contains a valid JWT token
+  */
   _validate(data) {
-    return !Ember.isEmpty(data['token']);
+    // Validate that a token is present
+    if (Ember.isEmpty(data['token'])) {
+      return false;
+    }
+
+    let jwtToken = data['token'].split('.');
+
+    // Validate the three elements of a JWT are present
+    if (jwtToken.length !== 3) {
+      return false;
+    }
+
+    // Validate the JWT headers
+    let jwtHeader = JSON.parse(atob(jwtToken[0]));
+    if(jwtHeader.typ !== "JWT") {
+      return false;
+    }
+
+    // Validate the JWT payload:
+    // iat: issued at time
+    // exp: expiration time
+    let jwtPayload = JSON.parse(atob(jwtToken[1]));
+    if(!jwtPayload['iat'] || !jwtPayload['exp']) {
+      return false;
+    }
+
+    return true;
+    // return !Ember.isEmpty(data['token']) && data['token'].split('.').length === 3;
   }
 });
