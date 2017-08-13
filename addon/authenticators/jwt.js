@@ -95,14 +95,7 @@ export default BaseAuthenticator.extend({
 
       this.makeRequest(serverTokenEndpoint, data).then((response) => {
         run(() => {
-          // TODO: common code between authenticate and refresh token; consolidate
-          if (!this._validate(response)) {
-            reject('token is missing or invalid in server response');
-          }
-
-          const jwtPayload = JSON.parse(atob(response.token.split('.')[1]));
-          this._scheduleAccessTokenRefresh(response.token, jwtPayload.exp);
-
+          this._validateParseRefreshToken(response);
           resolve(response);
         });
       }, (response) => {
@@ -204,13 +197,7 @@ export default BaseAuthenticator.extend({
     return new RSVP.Promise((resolve, reject) => {
       this.makeRequest(serverRefreshTokenEndpoint, data).then((response) => {
         run(() => {
-          if (!this._validate(response)) {
-            reject('token is missing or invalid in server response');
-          }
-
-          const jwtPayload = JSON.parse(atob(response.token.split('.')[1]));
-          this._scheduleAccessTokenRefresh(response.token, jwtPayload.exp);
-
+          this._validateParseRefreshToken(response);
           this.trigger('sessionDataUpdated', response);
           resolve(data);
         });
@@ -222,4 +209,13 @@ export default BaseAuthenticator.extend({
       });
     });
   },
+
+  _validateParseRefreshToken(response) {
+    if (!this._validate(response)) {
+      reject('token is missing or invalid in server response');
+    }
+
+    const jwtPayload = JSON.parse(atob(response.token.split('.')[1]));
+    this._scheduleAccessTokenRefresh(response.token, jwtPayload.exp);
+  }
 });
