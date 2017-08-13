@@ -30,7 +30,7 @@ module.exports = function(app) {
       let payload = {};
 
       jwt.sign(payload, 'secret', {
-        expiresIn: 60
+        expiresIn: 10
       }, function(err, token) {
         res.send({
           token: token

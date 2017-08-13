@@ -18,7 +18,7 @@ module.exports = function(app) {
         delete decoded.exp;
         res.send({
           token: jwt.sign(decoded, 'secret', {
-            expiresIn: 60
+            expiresIn: 10
           })
         });
       }
