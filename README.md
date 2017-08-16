@@ -9,6 +9,8 @@ This library is inspired by [ember-simple-auth-token](https://github.com/jpadill
 
 ## Example App
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/myartsev/ember-simple-auth-jwt.svg)](https://greenkeeper.io/)
+
 __Ember Simple Auth JWT comes with a
 [dummy app](tests/dummy)
 that implements a complete JWT auth solution__ with authentication against
