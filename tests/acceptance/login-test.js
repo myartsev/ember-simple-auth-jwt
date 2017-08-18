@@ -17,7 +17,7 @@ let server;
 
 test('visiting /login', function(assert) {
   server = new Pretender(function() {
-    this.post(`api/token-auth`, () => [200, {
+    this.post(`/api/token-auth`, () => [200, {
       'Content-Type': 'application/json'
     }, '{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MDMwMTM1NDgsImV4cCI6MTUwMzAxMzU3OH0.yK6ER4txjJ7799FiAPiBREGSRCJGxFUnZCBhp1hlJNY"}']);
   });

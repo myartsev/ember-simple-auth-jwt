@@ -99,7 +99,7 @@ export default BaseAuthenticator.extend({
           resolve(response);
         });
       }, (response) => {
-        run(null, reject, response.responseJSON);
+        run(null, reject, response);
       });
     });
   },
