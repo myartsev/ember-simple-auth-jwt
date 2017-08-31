@@ -1,10 +1,11 @@
 {
   "name": "ember-simple-auth-jwt",
   "version": "0.0.1",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Ember Simple Auth extension for JWT ",
   "keywords": [
     "ember-addon"
   ],
+  "author": "Michael Yartsev (anijap@gmail.com)",
   "license": "MIT",
   "author": "",
   "directories": {
