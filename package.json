@@ -1,13 +1,12 @@
 {
   "name": "ember-simple-auth-jwt",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Ember Simple Auth extension for JWT ",
   "keywords": [
     "ember-addon"
   ],
-  "author": "Michael Yartsev (anijap@gmail.com)",
-  "license": "MIT",
   "author": "",
+  "license": "MIT",
   "directories": {
     "doc": "doc",
     "test": "tests"
