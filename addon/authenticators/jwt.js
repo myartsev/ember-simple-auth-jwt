@@ -199,7 +199,7 @@ export default BaseAuthenticator.extend({
         run(() => {
           this._validateParseRefreshToken(response);
           this.trigger('sessionDataUpdated', response);
-          resolve(data);
+          resolve(response);
         });
       }, (reason) => {
         Ember.warn(`Access token could not be refreshed - server responded with ${JSON.stringify(reason.responseJSON)}.`, false, {
