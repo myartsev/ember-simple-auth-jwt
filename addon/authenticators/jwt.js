@@ -35,6 +35,15 @@ export default BaseAuthenticator.extend({
   identificationAttributeName: 'username',
 
   /**
+    The password attribute name. __This will be used in the request.__
+    @property passwordAttributeName
+    @type String
+    @default 'password'
+    @public
+  */
+  passwordAttributeName: 'password',
+
+  /**
     Time (ms) before the JWT expires to call the serverRefreshTokenEndpoint
     @property refreshTokenOffset
     @type Integer
@@ -98,9 +107,10 @@ export default BaseAuthenticator.extend({
   */
   authenticate(identification, password) {
     return new RSVP.Promise((resolve, reject) => {
+      const { identificationAttributeName, passwordAttributeName} = this.getProperties('identificationAttributeName', 'passwordAttributeName');
       const data = {
-        username: identification,
-        password: password
+        [identificationAttributeName]: identification,
+        [passwordAttributeName]: password
       };
       const serverTokenEndpoint = this.get('serverTokenEndpoint');
 
