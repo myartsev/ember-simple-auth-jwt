@@ -197,7 +197,7 @@ export default BaseAuthenticator.extend({
     // iat: issued at time
     // exp: expiration time
     let jwtPayload = JSON.parse(atob(jwtToken[1]));
-    if (!jwtPayload['iat'] || !jwtPayload['exp']) {
+    if (isNaN(jwtPayload['iat']) || isNaN(jwtPayload['exp'])) {
       return false;
     }
 
