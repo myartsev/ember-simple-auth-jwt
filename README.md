@@ -49,3 +49,18 @@ export default JWTBearer.extend();
 
 And now the rest is the same as [ember-simple-auth](https://github.com/simplabs/ember-simple-auth#walkthrough).  
 The dummy app in this project is also a good resource to get you started.
+
+# Supported scenarios
+This is not a mature library, as is currently, it is designed for a single scenario:  
+* Allow a user to securely log in
+* If the Ember app is closed and the JWT expires, that's it, the user has to log in again. Tokens are short lived (10 min), and it is desirable to have the user log in again after not if the app was closed for longer than 10 minutes.
+* User should stay authenticated as long as the Ember app is open (hence the need for refresh tokens).
+
+I realize this is a narrow use case, but it is what I needed and this gets the job done.  
+If you have other scenarios; please submit a proposal / PR.
+
+# Note: Production use
+This library is hardly battle tested, use at your own risk!  
+It was written out of necessity to have a simple authentication system that was easy to set up, reason about, and did not rely on 3rd party services such as [Auth0](https://auth0.com)
+
+I am not a security expert, if you find something of concern please open an issue!
