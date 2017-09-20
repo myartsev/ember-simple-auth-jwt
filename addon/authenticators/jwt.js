@@ -7,8 +7,6 @@ import {
 import BaseAuthenticator from 'ember-simple-auth/authenticators/base';
 
 export default BaseAuthenticator.extend({
-  session: Ember.inject.service(),
-
   /**
     The endpoint on the server that the authentication request is sent to.
     @property serverTokenEndpoint
@@ -37,24 +35,33 @@ export default BaseAuthenticator.extend({
   identificationAttributeName: 'username',
 
   /**
-    The offset time in milliseconds to refresh the access token. This must
-    return a random number. This randomization is needed because in case of
-    multiple tabs, we need to prevent the tabs from sending refresh token
-    request at the same exact moment.
-    __When overriding this property, make sure to mark the overridden property
-    as volatile so it will actually have a different value each time it is
-    accessed.__
-    @property refreshAccessTokens
+    Time (ms) before the JWT expires to call the serverRefreshTokenEndpoint
+    @property refreshTokenOffset
     @type Integer
-    @default a random number between 5 and 10
+    @default '1000'
     @public
   */
-  tokenRefreshOffset: Ember.computed(function() {
-    const min = 5;
-    const max = 10;
+  refreshTokenOffset: 1000,
 
-    return (Math.floor(Math.random() * (max - min)) + min) * 1000;
-  }).volatile(),
+  /**
+    Time (ms) after a call to serverRefreshTokenEndpoint during which no
+    further refresh token calls will be made.
+
+    Used to reduce the number of refresh token calls made when the same
+    app is simultaneously open in multiple tabs/windows.
+
+    For example: if the JWT is set to expire 30s after being issued, and the
+    'refreshTokenAfter' is set at 25s, requests may only be sent out in the
+    last 5 seconds.
+
+    @property refreshTokenAfter
+    @type Integer
+    @default '25000'
+    @public
+  */
+  refreshTokenAfter: 25000,
+
+  _refreshTokenTimeout: null,
 
   /**
     Restores the session from a session data object; __will return a resolving
@@ -66,7 +73,11 @@ export default BaseAuthenticator.extend({
     @public
   */
   restore(data) {
-    return this._refreshAccessToken(data.token);
+    if (this._refreshTokenTimeout) {
+      run.cancel(this._refreshTokenTimeout);
+      delete this._refreshTokenTimeout;
+    }
+    return this._refreshAccessToken(data);
   },
 
   /**
@@ -77,8 +88,8 @@ export default BaseAuthenticator.extend({
     server's response is returned, otherwise a promise that rejects with the error as returned by
     the server is returned.
 
-    TODO: If the server supports it this method also schedules refresh requests for the access token before it
-    expires.
+    This method also schedules refresh requests for the access token before it expires.
+    TODO: make the refresh token support optional
     @method authenticate
     @param {String} identification The resource owner username
     @param {String} password The resource owner password
@@ -111,6 +122,8 @@ export default BaseAuthenticator.extend({
     @public
    */
   invalidate() {
+    run.cancel(this._refreshTokenTimeout);
+    delete this._refreshTokenTimeout;
     return RSVP.Promise.resolve();
   },
 
@@ -140,6 +153,7 @@ export default BaseAuthenticator.extend({
             response.responseJSON = json;
             reject(response);
           } else {
+            window.localStorage.setItem('jwtLastRefreshAt', Date.now());
             resolve(json);
           }
         });
@@ -180,17 +194,33 @@ export default BaseAuthenticator.extend({
     return true;
   },
 
-  _scheduleAccessTokenRefresh(token, expiresAt) {
-    const offset = this.get('tokenRefreshOffset');
+  _scheduleAccessTokenRefresh(data) {
+    const jwtPayload = JSON.parse(atob(data.token.split('.')[1]));
+    const jwtPayloadExpiresAt = jwtPayload.exp;
+
+    const offset = 1000; // Refresh 1 sec before JWT expires
     const now = Date.now();
-    const waitMs = (expiresAt * 1000) - now - offset; //expiresAt is in sec
-    run.later(this, this._refreshAccessToken, token, waitMs);
+    const waitMs = (jwtPayloadExpiresAt * 1000) - now - offset; //expiresAt is in sec
+
+    if (this._refreshTokenTimeout) {
+      run.cancel(this._refreshTokenTimeout);
+      delete this._refreshTokenTimeout;
+    }
+
+    // Reschedule if the JWT is still valid
+    if (waitMs > 0) {
+      this._refreshTokenTimeout = run.later(this, this._refreshAccessToken, data, waitMs);
+    }
   },
 
-  _refreshAccessToken(token) {
-    const data = {
-      token: token
-    };
+  _refreshAccessToken(data) {
+    var timeElapsedSinceLastRefresh = Date.now() - window.localStorage.getItem('jwtLastRefreshAt')
+    if (timeElapsedSinceLastRefresh <= this.get('refreshTokenAfter')) {
+      // Request attempted too soon! Reschedule
+      this._validateParseRefreshToken(data);
+      return RSVP.Promise.resolve(data);
+    }
+
     const serverRefreshTokenEndpoint = this.get('serverRefreshTokenEndpoint');
 
     return new RSVP.Promise((resolve, reject) => {
@@ -214,7 +244,6 @@ export default BaseAuthenticator.extend({
       RSVP.Promise.reject('token is missing or invalid in server response');
     }
 
-    const jwtPayload = JSON.parse(atob(response.token.split('.')[1]));
-    this._scheduleAccessTokenRefresh(response.token, jwtPayload.exp);
+    this._scheduleAccessTokenRefresh(response);
   }
 });
