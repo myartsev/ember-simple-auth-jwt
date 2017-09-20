@@ -1,6 +1,6 @@
 {
   "name": "ember-simple-auth-jwt",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Ember Simple Auth extension for JWT ",
   "keywords": [
     "ember-addon"
