@@ -30,6 +30,9 @@ module.exports = function(environment) {
     // ENV.APP.LOG_TRANSITIONS = true;
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
     // ENV.APP.LOG_VIEW_LOOKUPS = true;
+    ENV.authServerBaseUrl = 'http://localhost:4200';
+    ENV.authServerTokenEndpoint = `${ENV.authServerBaseUrl}/api/token-auth`;
+    ENV.authServerRefreshTokenEndpoint = `${ENV.authServerBaseUrl}/api/token-refresh`;
   }
 
   if (environment === 'test') {
@@ -41,6 +44,10 @@ module.exports = function(environment) {
     ENV.APP.LOG_VIEW_LOOKUPS = false;
 
     ENV.APP.rootElement = '#ember-testing';
+
+    ENV.authServerBaseUrl = 'http://localhost:4200';
+    ENV.authServerTokenEndpoint = `${ENV.authServerBaseUrl}/api/token-auth`;
+    ENV.authServerRefreshTokenEndpoint = `${ENV.authServerBaseUrl}/api/token-refresh`;
   }
 
   if (environment === 'production') {
