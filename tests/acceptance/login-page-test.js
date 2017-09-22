@@ -8,6 +8,7 @@ import Pretender from 'pretender';
 import {
   currentSession
 } from '../../tests/helpers/ember-simple-auth';
+import config from '../../config/environment';
 import moduleForAcceptance from '../../tests/helpers/module-for-acceptance';
 
 moduleForAcceptance('Acceptance | login', {
@@ -21,7 +22,7 @@ const valid_dummy_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MDMw
 
 function tokenAuthSuccessResponse() {
   server = new Pretender(function() {
-    this.post('/api/token-auth', () => [200, {
+    this.post(config.authServerTokenEndpoint, () => [200, {
       'Content-Type': 'application/json'
     }, `{"token":"${valid_dummy_token}"}`]);
   });
@@ -68,7 +69,7 @@ test('invalid credentials fail to login', function(assert) {
   let self = this;
 
   server = new Pretender(function() {
-    this.post(`/api/token-auth`, () => [401, {
+    this.post(config.authServerTokenEndpoint, () => [401, {
       error: 'Invalid credentials'
     }]);
   });

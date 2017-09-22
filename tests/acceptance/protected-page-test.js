@@ -5,6 +5,7 @@ import Pretender from 'pretender';
 import {
   authenticateSession
 } from '../../tests/helpers/ember-simple-auth';
+import config from '../../config/environment';
 import moduleForAcceptance from '../../tests/helpers/module-for-acceptance';
 
 moduleForAcceptance('Acceptance | protected');
@@ -25,7 +26,7 @@ test('can visit a protected page while authenticated', function(assert) {
   });
 
   new Pretender(function() {
-    this.get('/api/secret-stuff', () => [200, 'hi?']);
+    this.get(`${config.authServerBaseUrl}/api/secret-stuff`, () => [200, 'hi?']);
   });
 
   visit('/secret');
