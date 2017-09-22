@@ -44,6 +44,15 @@ export default BaseAuthenticator.extend({
   passwordAttributeName: 'password',
 
   /**
+    The name of the key in the response containing the JWT.
+    @property tokenAttributeName
+    @type String
+    @default 'token'
+    @public
+  */
+  tokenAttributeName: 'token',
+
+  /**
     Time (ms) before the JWT expires to call the serverRefreshTokenEndpoint
     @property refreshTokenOffset
     @type Integer
@@ -175,12 +184,14 @@ export default BaseAuthenticator.extend({
     Validate that the response contains a valid JWT token
   */
   _validate(data) {
+    const tokenAttributeName = this.get('tokenAttributeName');
+
     // Validate that a token is present
-    if (Ember.isEmpty(data['token'])) {
+    if (Ember.isEmpty(data[tokenAttributeName])) {
       return false;
     }
 
-    let jwtToken = data['token'].split('.');
+    let jwtToken = data[tokenAttributeName].split('.');
 
     // Validate the three elements of a JWT are present
     if (jwtToken.length !== 3) {
@@ -205,7 +216,7 @@ export default BaseAuthenticator.extend({
   },
 
   _scheduleAccessTokenRefresh(data) {
-    const jwtPayload = JSON.parse(atob(data.token.split('.')[1]));
+    const jwtPayload = JSON.parse(atob(data[this.get('tokenAttributeName')].split('.')[1]));
     const jwtPayloadExpiresAt = jwtPayload.exp;
 
     const offset = 1000; // Refresh 1 sec before JWT expires
