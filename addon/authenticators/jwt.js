@@ -187,9 +187,9 @@ export default BaseAuthenticator.extend({
       return false;
     }
 
-    // Validate the JWT headers
+    // Validate the JWT header
     let jwtHeader = JSON.parse(atob(jwtToken[0]));
-    if (jwtHeader.typ !== "JWT") {
+    if (!jwtHeader.alg) {
       return false;
     }
 
