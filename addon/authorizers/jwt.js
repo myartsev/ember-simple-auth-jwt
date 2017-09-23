@@ -32,7 +32,8 @@ export default Base.extend({
     @param {function} block
   */
   authorize(data = {}, block = () => {}) {
-    if (!Ember.isEmpty(data) && !Ember.isEmpty(data.token)) {
-      block('Authorization', `Bearer ${data.token}`);
+    const tokenAttributeName = this.get('tokenAttributeName');
+    if (!Ember.isEmpty(data) && !Ember.isEmpty(data['tokenAttributeName'])) {
+      block('Authorization', `Bearer ${data['tokenAttributeName']}`);
     }  }
 });
