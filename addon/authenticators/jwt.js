@@ -114,13 +114,18 @@ export default BaseAuthenticator.extend({
       };
       const serverTokenEndpoint = this.get('serverTokenEndpoint');
 
-      this.makeRequest(serverTokenEndpoint, data).then((response) => {
+      this.makeRequest(serverTokenEndpoint, data)
+      .then((response) => { return this._validateTokenAndScheduleRefresh(response); })
+      .then((response) => {
         run(() => {
-          this._validateParseRefreshToken(response);
           resolve(response);
         });
-      }, (response) => {
-        run(null, reject, response);
+      })
+      .catch((reason) => {
+          if(reason.responseJSON) {
+            reason = reason.responseJSON;
+          }
+          run(null, reject, reason);
       });
     });
   },
@@ -204,7 +209,7 @@ export default BaseAuthenticator.extend({
     return true;
   },
 
-  _scheduleAccessTokenRefresh(data) {
+  _scheduleTokenRefresh(data) {
     const jwtPayload = JSON.parse(atob(data.token.split('.')[1]));
     const jwtPayloadExpiresAt = jwtPayload.exp;
 
@@ -227,33 +232,41 @@ export default BaseAuthenticator.extend({
     var timeElapsedSinceLastRefresh = Date.now() - window.localStorage.getItem('jwtLastRefreshAt')
     if (timeElapsedSinceLastRefresh <= this.get('refreshTokenAfter')) {
       // Request attempted too soon! Reschedule
-      this._validateParseRefreshToken(data);
-      return RSVP.Promise.resolve(data);
+      return this._validateTokenAndScheduleRefresh(data);
     }
 
     const serverRefreshTokenEndpoint = this.get('serverRefreshTokenEndpoint');
 
     return new RSVP.Promise((resolve, reject) => {
-      this.makeRequest(serverRefreshTokenEndpoint, data).then((response) => {
+      this.makeRequest(serverRefreshTokenEndpoint, data)
+      .then((response) => {
+        return this._validateTokenAndScheduleRefresh(response);
+      })
+      .then((response) => {
         run(() => {
-          this._validateParseRefreshToken(response);
           this.trigger('sessionDataUpdated', response);
           resolve(response);
         });
-      }, (reason) => {
-        Ember.warn(`Access token could not be refreshed - server responded with ${JSON.stringify(reason.responseJSON)}.`, false, {
+      })
+      .catch((reason) => {
+        if(reason.responseJSON) {
+          reason = JSON.stringify(reason.responseJSON);
+        }
+        Ember.warn(`JWT token could not be refreshed: ${reason}.`, false, {
           id: 'ember-simple-auth-jwt.failedJWTTokenRefresh'
         });
+
         reject();
       });
     });
   },
 
-  _validateParseRefreshToken(response) {
+  _validateTokenAndScheduleRefresh(response) {
     if (!this._validate(response)) {
-      RSVP.Promise.reject('token is missing or invalid in server response');
+      return RSVP.Promise.reject('token is missing or invalid in server response');
     }
 
-    this._scheduleAccessTokenRefresh(response);
+    this._scheduleTokenRefresh(response);
+    return RSVP.Promise.resolve(response);
   }
 });
