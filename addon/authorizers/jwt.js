@@ -1,4 +1,6 @@
-import Ember from 'ember';
+import {
+  isEmpty
+} from '@ember/utils';
 import Base from 'ember-simple-auth/authorizers/base';
 
 /**
@@ -32,7 +34,8 @@ export default Base.extend({
     @param {function} block
   */
   authorize(data = {}, block = () => {}) {
-    if (!Ember.isEmpty(data) && !Ember.isEmpty(data.token)) {
+    if (!isEmpty(data) && !isEmpty(data.token)) {
       block('Authorization', `Bearer ${data.token}`);
-    }  }
+    }
+  }
 });

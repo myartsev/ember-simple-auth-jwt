@@ -1,4 +1,3 @@
-/* eslint-env node */
 'use strict';
 
 module.exports = function(environment) {
@@ -48,6 +47,7 @@ module.exports = function(environment) {
     ENV.authServerBaseUrl = 'http://localhost:4200';
     ENV.authServerTokenEndpoint = `${ENV.authServerBaseUrl}/api/token-auth`;
     ENV.authServerRefreshTokenEndpoint = `${ENV.authServerBaseUrl}/api/token-refresh`;
+    ENV.APP.autoboot = false;
   }
 
   if (environment === 'production') {

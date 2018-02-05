@@ -1,32 +1,41 @@
-import Ember from 'ember';
+import Controller from '@ember/controller';
+import {
+  inject
+} from '@ember/service';
+import {
+  computed
+} from '@ember/object';
+import {
+  isEmpty
+} from '@ember/utils';
 
-export default Ember.Controller.extend({
-  session: Ember.inject.service(),
-  sessionData: Ember.computed('session.data.authenticated', function() {
+export default Controller.extend({
+  session: inject(),
+  sessionData: computed('session.data.authenticated', function() {
     return JSON.stringify(this.get('session.data'));
   }),
 
-  jwtToken: Ember.computed('session.data.authenticated', function() {
+  jwtToken: computed('session.data.authenticated', function() {
     let token = this.get('session.data.authenticated.token');
-    if (Ember.isEmpty(token)) {
+    if (isEmpty(token)) {
       return token;
     }
 
     return this.get('session.data.authenticated.token').split('.');
   }),
 
-  jwtHeader: Ember.computed('jwtToken', function() {
+  jwtHeader: computed('jwtToken', function() {
     let token = this.get('jwtToken');
-    return Ember.isEmpty(token) ? '' : atob(token[0]);
+    return isEmpty(token) ? '' : atob(token[0]);
   }),
 
-  jwtPayload: Ember.computed('jwtToken', function() {
+  jwtPayload: computed('jwtToken', function() {
     let token = this.get('jwtToken');
-    return Ember.isEmpty(token) ? '' : atob(token[1]);
+    return isEmpty(token) ? '' : atob(token[1]);
   }),
 
-  jwtSignature: Ember.computed('jwtToken', function() {
+  jwtSignature: computed('jwtToken', function() {
     let token = this.get('jwtToken');
-    return Ember.isEmpty(token) ? '' : token[2];
+    return isEmpty(token) ? '' : token[2];
   }),
 });

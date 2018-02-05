@@ -1,9 +1,14 @@
-import Ember from 'ember';
 import RSVP from 'rsvp';
 import fetch from 'fetch';
 import {
   run
 } from '@ember/runloop';
+import {
+  isEmpty
+} from '@ember/utils';
+import {
+  warn
+} from '@ember/debug';
 import BaseAuthenticator from 'ember-simple-auth/authenticators/base';
 
 export default BaseAuthenticator.extend({
@@ -107,7 +112,10 @@ export default BaseAuthenticator.extend({
   */
   authenticate(identification, password) {
     return new RSVP.Promise((resolve, reject) => {
-      const { identificationAttributeName, passwordAttributeName} = this.getProperties('identificationAttributeName', 'passwordAttributeName');
+      const {
+        identificationAttributeName,
+        passwordAttributeName
+      } = this.getProperties('identificationAttributeName', 'passwordAttributeName');
       const data = {
         [identificationAttributeName]: identification,
         [passwordAttributeName]: password
@@ -115,18 +123,20 @@ export default BaseAuthenticator.extend({
       const serverTokenEndpoint = this.get('serverTokenEndpoint');
 
       this.makeRequest(serverTokenEndpoint, data)
-      .then((response) => { return this._validateTokenAndScheduleRefresh(response); })
-      .then((response) => {
-        run(() => {
-          resolve(response);
-        });
-      })
-      .catch((reason) => {
-          if(reason.responseJSON) {
+        .then((response) => {
+          return this._validateTokenAndScheduleRefresh(response);
+        })
+        .then((response) => {
+          run(() => {
+            resolve(response);
+          });
+        })
+        .catch((reason) => {
+          if (reason.responseJSON) {
             reason = reason.responseJSON;
           }
           run(null, reject, reason);
-      });
+        });
     });
   },
 
@@ -181,7 +191,7 @@ export default BaseAuthenticator.extend({
   */
   _validate(data) {
     // Validate that a token is present
-    if (Ember.isEmpty(data['token'])) {
+    if (isEmpty(data['token'])) {
       return false;
     }
 
@@ -239,25 +249,25 @@ export default BaseAuthenticator.extend({
 
     return new RSVP.Promise((resolve, reject) => {
       this.makeRequest(serverRefreshTokenEndpoint, data)
-      .then((response) => {
-        return this._validateTokenAndScheduleRefresh(response);
-      })
-      .then((response) => {
-        run(() => {
-          this.trigger('sessionDataUpdated', response);
-          resolve(response);
-        });
-      })
-      .catch((reason) => {
-        if(reason.responseJSON) {
-          reason = JSON.stringify(reason.responseJSON);
-        }
-        Ember.warn(`JWT token could not be refreshed: ${reason}.`, false, {
-          id: 'ember-simple-auth-jwt.failedJWTTokenRefresh'
-        });
+        .then((response) => {
+          return this._validateTokenAndScheduleRefresh(response);
+        })
+        .then((response) => {
+          run(() => {
+            this.trigger('sessionDataUpdated', response);
+            resolve(response);
+          });
+        })
+        .catch((reason) => {
+          if (reason.responseJSON) {
+            reason = JSON.stringify(reason.responseJSON);
+          }
+          warn(`JWT token could not be refreshed: ${reason}.`, false, {
+            id: 'ember-simple-auth-jwt.failedJWTTokenRefresh'
+          });
 
-        reject();
-      });
+          reject();
+        });
     });
   },
 
