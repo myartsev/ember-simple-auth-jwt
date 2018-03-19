@@ -262,10 +262,14 @@ export default BaseAuthenticator.extend({
           if (reason.responseJSON) {
             reason = JSON.stringify(reason.responseJSON);
           }
+
           warn(`JWT token could not be refreshed: ${reason}.`, false, {
             id: 'ember-simple-auth-jwt.failedJWTTokenRefresh'
           });
 
+          // The session handles the 'sessionDataInvalidated' event
+          // and will invalidate itself when it is triggered.
+          this.trigger('sessionDataInvalidated');
           reject();
         });
     });
