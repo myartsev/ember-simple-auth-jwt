@@ -86,3 +86,23 @@ test('invalid credentials fail to login', function(assert) {
     assert.equal(currentSession(self.application).session.isAuthenticated, false);
   });
 });
+
+test('custom error response from server', function(assert) {
+  let self = this;
+
+  server = new Pretender(function() {
+    this.post(config.authServerTokenEndpoint, () => [401, 'Invalid credentials']);
+  });
+
+  visit('/login');
+  assert.equal(currentSession(self.application).session.isAuthenticated, false);
+
+  fillIn('#identification', 'not');
+  fillIn('#password', 'valid');
+  click('button');
+
+  andThen(function() {
+    assert.equal(currentURL(), '/login');
+    assert.equal(currentSession(self.application).session.isAuthenticated, false);
+  });
+});

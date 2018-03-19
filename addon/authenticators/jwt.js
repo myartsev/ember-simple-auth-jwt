@@ -173,13 +173,18 @@ export default BaseAuthenticator.extend({
     return new RSVP.Promise((resolve, reject) => {
       fetch(url, options).then((response) => {
         response.text().then((text) => {
-          let json = text ? JSON.parse(text) : {};
-          if (!response.ok) {
-            response.responseJSON = json;
+          try {
+            let json = JSON.parse(text);
+            if (!response.ok) {
+              response.responseJSON = json;
+              reject(response);
+            } else {
+              window.localStorage.setItem('jwtLastRefreshAt', Date.now());
+              resolve(json);
+            }
+          } catch (error) {
+            response.responseText = text;
             reject(response);
-          } else {
-            window.localStorage.setItem('jwtLastRefreshAt', Date.now());
-            resolve(json);
           }
         });
       }).catch(reject);
@@ -262,10 +267,14 @@ export default BaseAuthenticator.extend({
           if (reason.responseJSON) {
             reason = JSON.stringify(reason.responseJSON);
           }
+
           warn(`JWT token could not be refreshed: ${reason}.`, false, {
             id: 'ember-simple-auth-jwt.failedJWTTokenRefresh'
           });
 
+          // The session handles the 'sessionDataInvalidated' event
+          // and will invalidate itself when it is triggered.
+          this.trigger('sessionDataInvalidated');
           reject();
         });
     });
