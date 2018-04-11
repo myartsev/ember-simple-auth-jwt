@@ -47,7 +47,7 @@
     "jsonwebtoken": "^8.0.0",
     "eslint-plugin-ember": "^5.0.0",
     "eslint-plugin-node": "^5.2.1",
-    "loader.js": "^4.2.3",
+    "loader.js": "4.6.0",
     "morgan": "^1.8.2"
   },
   "engines": {
