@@ -41,7 +41,7 @@
     "ember-load-initializers": "^1.0.0",
     "ember-resolver": "^4.0.0",
     "ember-simple-auth": "^1.4.0",
-    "ember-source": "~2.18.0",
+    "ember-source": "~3.1.1",
     "express": "^4.15.4",
     "glob": "^7.1.2",
     "jsonwebtoken": "^8.0.0",
