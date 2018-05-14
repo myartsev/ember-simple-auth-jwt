@@ -22,7 +22,7 @@
     "ember-cli-babel": "^6.6.0"
   },
   "devDependencies": {
-    "body-parser": "^1.17.2",
+    "body-parser": "^1.18.3",
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^3.0.0",
     "ember-cli": "~2.18.2",
